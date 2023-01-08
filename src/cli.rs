@@ -6,7 +6,7 @@ use clap::Parser;
 pub struct Args {
     /// 包含bv列表的相对文件路径
     #[arg(short, long)]
-    pub file: Option<String>,
+    pub list: Option<String>,
 
     /// Bid
     #[arg(short, long)]
@@ -19,4 +19,7 @@ pub struct Args {
     /// 下载完成后上传至网易云云盘（需要二维码登录）
     #[arg(short, long)]
     pub upload: bool,
+
+    #[arg(short, long, default_value = "mp3")]
+    pub format: String,
 }

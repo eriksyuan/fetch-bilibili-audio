@@ -15,7 +15,8 @@ async fn main() {
 
     let user = User::login().await.unwrap();
 
-    let bv_list1 = match args.file {
+
+    let bv_list1 = match args.list {
         Some(file) => config::ConfigFile::read(&file).expect("配置文件读取失败"),
         None => Vec::new(),
     };
@@ -34,15 +35,17 @@ async fn main() {
     for bv in bv_list.iter() {
         let video_info = bv.get_video_info().await.unwrap();
 
-        let audios = video_info.get_audios(args.all).await.unwrap();
+        let audios = video_info.get_audios(args.all, &args.format).await.unwrap();
 
         for audio in audios.iter() {
             // todo!(“中文乱码”)
             let file_name = audio.file_name().unwrap().to_str().unwrap().to_string();
-            println!("开始上传{:?}",file_name);
-            user.upload(audio.to_str().unwrap(), file_name)
-                .await
-                .unwrap();
+            if args.upload {
+                println!("开始上传{:?}", file_name);
+                user.upload(audio.to_str().unwrap(), file_name)
+                    .await
+                    .unwrap();
+            }
         }
-    }
+    // }
 }

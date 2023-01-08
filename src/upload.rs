@@ -65,7 +65,12 @@ impl User {
 
         let mut reader_stream = ReaderStream::new(file);
 
-        let mut uploaded_size: u64 = Client::new().get(&url).send().await?.content_length().unwrap_or(0);
+        let mut uploaded_size: u64 = Client::new()
+            .get(&url)
+            .send()
+            .await?
+            .content_length()
+            .unwrap_or(0);
 
         let pb = ProgressBar::new(total_size);
 
@@ -94,11 +99,11 @@ impl User {
         //make form part of file
         let some_file = multipart::Part::stream(file_body)
             .file_name(file_name)
-            .mime_str("audio/x-flac")?;
+            .mime_str("audio/mpeg")?;
 
         let form = multipart::Form::new().part("songFile", some_file);
 
-         Client::new()
+        Client::new()
             .post(url)
             .header(
                 "Range",

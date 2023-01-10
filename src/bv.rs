@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use indicatif::{ProgressBar, ProgressStyle};
-use reqwest::header::{self, HeaderMap};
+use reqwest::{header::{self, HeaderMap}, Url};
 use serde_json::Value;
 use std::{path::PathBuf, thread, time::Duration};
 use tokio::fs;
@@ -70,7 +70,6 @@ impl VideoInfo {
         &self,
         audio_url: reqwest::Url,
         part: Option<usize>,
-        format: &String,
     ) -> Result<PathBuf> {
         let client = reqwest::Client::builder().user_agent(spoof_ua()).build()?;
 
@@ -121,8 +120,8 @@ impl VideoInfo {
         let title = self.title.replace("/", "").replace("\\", "");
 
         let title = match part {
-            None => format!("{}.{}", title, format),
-            Some(part) => format!("{}_{}.{}", title, part, format),
+            None => format!("{}.m4s", title),
+            Some(part) => format!("{}_{}.m4s", title, part),
         };
 
         let save_path = get_download_path().await?.join(&title);
@@ -147,25 +146,22 @@ impl VideoInfo {
         thread::sleep(Duration::from_secs(1));
         Ok(save_path)
     }
-    pub async fn get_audios(&self, all: bool, format: &String) -> Result<Vec<PathBuf>> {
+    pub async fn get_audios(&self) -> Result<PathBuf> {
         let urls = self.get_audio_urls().await?;
 
-        let urls = if all { urls } else { vec![urls[0].clone()] };
+        let url:Url = urls[0].clone().parse().unwrap();
 
         self.download_cover().await?;
 
-        let mut audio_paths = Vec::new();
-        for i in 0..urls.len() {
-            let url: reqwest::Url = urls[i].parse()?;
-            // let index =
-            let audio_path = self.download_audio(url, Some(i + 1), format).await?;
+        
+        // let index =
+        let audio_path = self.download_audio(url, Some(1)).await?;
 
-            audio_paths.push(audio_path);
+        
 
-            // 应用封面
-        }
+        // 应用封面
 
-        Ok(audio_paths)
+        Ok(audio_path)
     }
 
     pub async fn get_audio_urls(&self) -> Result<Vec<String>> {

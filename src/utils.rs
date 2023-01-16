@@ -18,6 +18,7 @@ pub async fn save_with_cb(
     Ok(())
 }
 
+
 pub async fn save(filename: &PathBuf, response: &mut reqwest::Response) -> Result<()> {
     let mut dest = OpenOptions::new()
         .create(true)

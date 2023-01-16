@@ -15,8 +15,10 @@ futures-util = "0.3.25"
 indicatif = "0.17.2"
 qr2term = "0.3.1"
 reqwest = { version = "0.11.13", features = ["json","stream","multipart"] }
+sanitize-filename = "0.4.0"
 serde = { version = "1.0.152", features = ["derive"] }
 serde_json = "1.0.91"
+symphonia = "0.5.1"
 tokio = { version = "1.24.0", features = ["full"] }
 tokio-util = "0.7.4"
 ua_generator = { git = "https://github.com/a11ywatch/ua_generator.git", version = "0.3.5" }
@@ -24,3 +26,4 @@ ua_generator = { git = "https://github.com/a11ywatch/ua_generator.git", version 
 
 [dev-dependencies]
 cpal = "0.10"
+rand = "0.8.5"

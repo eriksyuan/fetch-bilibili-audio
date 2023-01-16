@@ -5,7 +5,7 @@ use clap::Parser;
 #[command(author, version, about, long_about = None)]
 pub struct Args {
     /// 包含bv列表的相对文件路径
-    #[arg(short, long)]
+    #[arg(short, long, default_value = "input.txt")]
     pub list: Option<String>,
 
     /// Bid

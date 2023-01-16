@@ -5,6 +5,8 @@ mod ffmpeg;
 // mod upload;
 mod utils;
 
+use std::fs;
+
 use crate::bv::Bv;
 use clap::Parser;
 use cli::Args;
@@ -13,11 +15,6 @@ use cli::Args;
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
-
-    // let mut user: Option<User> = None;
-    // if args.upload {
-    //     user = Some(User::login().await.unwrap());
-    // }
 
     let bv_list1 = match args.list {
         Some(file) => config::ConfigFile::read(&file).expect("配置文件读取失败"),
@@ -35,21 +32,19 @@ async fn main() {
         .chain(bv_list2.into_iter())
         .collect::<Vec<Bv>>();
 
+    let mut audios = Vec::new();
+
+    // 下载音频
     for bv in bv_list.iter() {
         let video_info = bv.get_video_info().await.unwrap();
-        let files  = video_info.get_audios().await.unwrap();
-        let input = files.to_str().unwrap();
-
-        ffmpeg::transform_format_code(input).unwrap();
+        let files = video_info.get_audios().await.unwrap();
+        let input = files.to_str().unwrap().to_string();
+        audios.push(input);
+    }
+    // 通过FFmpeg转码
+    for audio in audios.iter() {
+        ffmpeg::transform_format_code(&audio).unwrap();
+        fs::remove_file(&audio).unwrap();
         
     }
-
-    // if args.upload {
-    // upload
-    // for audio in audios_files.iter() {
-    //     // todo!(“中文乱码”)
-
-    // }
-    // }
-    // }
 }

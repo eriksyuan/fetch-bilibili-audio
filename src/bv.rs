@@ -1,6 +1,9 @@
 use anyhow::{anyhow, Result};
 use indicatif::{ProgressBar, ProgressStyle};
-use reqwest::{header::{self, HeaderMap}, Url};
+use reqwest::{
+    header::{self, HeaderMap},
+    Url,
+};
 use serde_json::Value;
 use std::{path::PathBuf, thread, time::Duration};
 use tokio::fs;
@@ -111,13 +114,13 @@ impl VideoInfo {
         let pb = ProgressBar::new(total_size);
 
         pb.set_style(ProgressStyle::default_bar()
-                 .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {bytes}/{total_bytes} ({eta})")
+                 .template(" {prefix:.bold.dim} {spinner:.green} [{bar:40.cyan/blue}] {bytes}/{total_bytes} ({eta})")
                  .unwrap()
                  .progress_chars("#>-"));
+        let title = sanitize_filename::sanitize(&self.title);
+        pb.set_prefix(format!("{}", &title));
 
         let mut request = client.get(audio_url.clone()).headers(headers.clone());
-
-        let title = self.title.replace("/", "").replace("\\", "");
 
         let title = match part {
             None => format!("{}.m4s", title),
@@ -140,8 +143,7 @@ impl VideoInfo {
         };
 
         save_with_cb(&save_path, &mut response, &cb).await?;
-
-        println!("BV {} download finished", self.bv);
+        pb.finish_with_message("下载完成");
         // 等待1s;
         thread::sleep(Duration::from_secs(1));
         Ok(save_path)
@@ -149,15 +151,12 @@ impl VideoInfo {
     pub async fn get_audios(&self) -> Result<PathBuf> {
         let urls = self.get_audio_urls().await?;
 
-        let url:Url = urls[0].clone().parse().unwrap();
+        let url: Url = urls[0].clone().parse().unwrap();
 
-        self.download_cover().await?;
+        // self.download_cover().await?;
 
-        
         // let index =
         let audio_path = self.download_audio(url, Some(1)).await?;
-
-        
 
         // 应用封面
 
@@ -183,7 +182,7 @@ impl VideoInfo {
         Ok(urls)
     }
 
-    pub async fn download_cover(&self) -> Result<PathBuf> {
+    pub async fn _download_cover(&self) -> Result<PathBuf> {
         let url = self.cover.clone();
 
         let mut response = reqwest::get(url).await?;
